@@ -7,7 +7,7 @@ function postData(){
     nickname:"a1",
     pw:"p1",
     age:10,
-    birth:new Date("2000-10-10")
+    birth:"2010-01-02"
   },{
     nickname:"a2",
     pw:"p2",

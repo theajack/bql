@@ -86,7 +86,7 @@
                 if(this.attr("type")=="number"){
                   (new Function(name+".data()["+i+"]"+a+"="+this.val()+";"))();
                 }else{
-                  (new Function(name+".data()["+i+"]"+a+"='"+this.val()+"';"))();//"+name+".refresh();
+                  (new Function(name+".data()["+i+"]"+a+"='"+this.val()+"';"))();//"+name+".run();
                 }
               },true);
             }else{
@@ -102,7 +102,7 @@
             }
             if(refresh=="true"){
               item.on("change",function(){
-                (new Function(name+".refresh();"))();
+                (new Function(name+".run();"))();
               },true);
             }
           }
@@ -131,14 +131,14 @@
   }
   function _bqlCheckRefresh(){
     if(_checkArg.apply(null,arguments)){
-      return this.refresh();
+      return this.run();
     }
     return this;
   }
   function _bqlCheckResRefresh(get,res,args){
     if(_checkArg.apply(null,args)){
       if(get.needRefresh()){
-        this.refresh();
+        this.run();
       }
       return res;
     }
@@ -230,7 +230,7 @@
       }
     };
     
-    this.refresh=function(){
+    this.run=function(){
       _need_refresh=false;
       return _bqlRefresh(get,true);
     };
@@ -242,18 +242,18 @@
       if(data.constructor==Object){
         this.add=function(attr,value){
           _obj.add(attr,value);
-          return this.refresh();
+          return this.run();
         };
         this.remove=function(attr){
           _obj.remove(attr);
-          return this.refresh();
+          return this.run();
         };
         this.select=function(attr){
           return _obj.select(attr);
         };
         this.update=function(attr,value){
           _obj.update(attr,value);
-          return this.refresh();
+          return this.run();
         };
         _single=true;
       }else if(data.constructor==Array){
@@ -299,7 +299,7 @@
       this.set=function(data,ref){
         _obj.set(data);
         if(ref==undefined||ref==true){
-          this.refresh();
+          this.run();
         }
         return data;
       };
@@ -311,10 +311,10 @@
       };
       this.clear=function(){
         _obj.clear();
-        this.refresh();
+        this.run();
         return null;
       }
-      this.refresh();
+      this.run();
       return this.get();
     }
     _bqlInit.call(this,get,set);
@@ -337,9 +337,6 @@
       }
     }
   };
-  //input change
-  
-  //users.update().where().groupBy().desc().refresh();
 })();
 var BQL;
 

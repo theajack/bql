@@ -198,7 +198,6 @@ J.ready(function(){
       return _jqlCheckRun.call(this,value,run);
     }
   }
-  var attr="nickname=='aaa'||pw==''"
   function _jqlCheckWhere(index,get){
     if(get.cond()){
       var data=get.data()[index];
@@ -311,7 +310,7 @@ J.ready(function(){
     }
     return res;
   }
-  //count(*)
+  
   function _checkRunGroupBy(get,data){
     //avg count count(DISTINCT ) first last max min 
     //实现函数
@@ -340,42 +339,56 @@ J.ready(function(){
           var funRes=[];
           gres.each(function(items){
             var newobj={};
-            newobj[attr]=items[0][attr];
             var names=[];
             funs.each(function(fun){
-              if(fun.name==TYPE.all){
-                fun.name=FUN.count;
-              }
-              if(!names.has(fun.name)){
-                names.push(fun.name);
+              if(fun.fun==undefined){
+                if(fun.attr!=attr){
+                  _throw(fun.attr+" 没有groupBy");
+                }else{
+                  newobj[attr]=items[0][attr];
+                }
               }else{
-                _throw(fun.name+"列名不能相同");
-              }
-              switch(fun.fun){
-                case FUN.sum:{
-                  newobj[fun.name]=_getGroupAttrArr(items,fun.attr).sum();
-                };break;
-                case FUN.count:{
-                  newobj[fun.name]=items.length;
-                };break;
-                case FUN.avg:{
-                  newobj[fun.name]=_getGroupAttrArr(items,fun.attr).avg();
-                };break;
-                case FUN.first:{
-                  newobj[fun.name]=items.first()[fun.attr];
-                };break;
-                case FUN.last:{
-                  newobj[fun.name]=items.last()[fun.attr];
-                };break;
-                case FUN.max:{
-                  newobj[fun.name]=_getGroupAttrArr(items,fun.attr).max();
-                };break;
-                case FUN.min:{
-                  newobj[fun.name]=_getGroupAttrArr(items,fun.attr).min();
-                };break;
-                default:{
-                  newobj[fun.name]=items[0][fun.attr];
-                };break;
+                if(fun.name==TYPE.all){
+                  if(fun.fun!=FUN.count){
+                    _throw("* 不能用于"+fun.fun+"方法");
+                  }
+                  fun.name=FUN.count;
+                }
+                if(!names.has(fun.name)){
+                  names.push(fun.name);
+                }else{
+                  _throw(fun.name+"列名不能相同");
+                }
+                
+                if(fun.name==fun.attr){
+                  fun.name=fun.fun;
+                }
+                switch(fun.fun){
+                  case FUN.sum:{
+                    newobj[fun.name]=_getGroupAttrArr(items,fun.attr).sum();
+                  };break;
+                  case FUN.count:{
+                    newobj[fun.name]=items.length;
+                  };break;
+                  case FUN.avg:{
+                    newobj[fun.name]=_getGroupAttrArr(items,fun.attr).avg();
+                  };break;
+                  case FUN.first:{
+                    newobj[fun.name]=items.first()[fun.attr];
+                  };break;
+                  case FUN.last:{
+                    newobj[fun.name]=items.last()[fun.attr];
+                  };break;
+                  case FUN.max:{
+                    newobj[fun.name]=_getGroupAttrArr(items,fun.attr).max();
+                  };break;
+                  case FUN.min:{
+                    newobj[fun.name]=_getGroupAttrArr(items,fun.attr).min();
+                  };break;
+                  default:{
+                    newobj[fun.name]=items[0][fun.attr];
+                  };break;
+                }
               }
             });
             
@@ -519,6 +532,9 @@ J.ready(function(){
                       }
                     }
                     if(a in data[i]){
+                      if(name in r){
+                        _throw("select:["+name+"]列名不能重复");
+                      }
                       r[name]=data[i][a];
                     }else{
                       if(a.has("(")){
