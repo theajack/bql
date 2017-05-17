@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="keywords" content="Bind Query Library,BQL,SQL,JQL,js数据绑定,js数据查询,json sql语句">  
+    <meta name="description" content="BQL--Bind Query Library">  
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+    <meta http-equiv="X-UA-Compatible" content="IE=8">
+
+    <title>BQL--Bind Query Library</title>
+    <link rel="stylesheet" type="text/css" href="assets/css/index.css"/>
+  </head>
+  <body>
+    
+    <!--<div b-bind="str" b-update=true b-init="'test'">
+      <div>sting:<input type="text" value="{{str}}"/></div>
+    </div>
+    </br>
+  
+    <div b-bind="user" b-update=true b-init="{nickname:'n1',pw:1234}">
+      <div>昵称：<input type="text" value="{{user.nickname}}"/></div>
+      <div>密码：<input type="text" value="{{user.pw}}"/></div>
+    </div>
+    </br>-->
+    <div b-loop="users" b-update=true b-refresh=true b-init="postData()">
+      <div>昵称：<input type="text" value="{{each.nickname}}"/></div>
+      <div>昵称：<textarea>{{each.nickname}}</textarea>
+      <div>昵称：{{each.nickname}}</div>
+      <div>密码：{{each.pw}}</div>
+      <div>年龄：<input type="number" value="{{each.age}}"/></div>
+      <div>生日：<input type="date" value="{{each.birth}}"/></div>
+      </br>
+    </div>
+    <script src="assets/js/jetter.min.js"></script>
+    <script src="assets/js/bindQL.js"></script>
+    <script src="assets/js/JQL.js"></script>
+    <script src="assets/js/index.js"></script>
+  </body>
+</html>
