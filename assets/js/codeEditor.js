@@ -10,6 +10,7 @@
 //Note>Str>HTML>Fun>key>Num>sign
 //
 var _ce_btn="ce-btn";
+var _def_w=300,_def_h=200;
 var Ced={
   init:function(element){
     if(element==undefined){
@@ -18,6 +19,7 @@ var Ced={
       });
       initFunBtn();//未完成
       initCodeMain(J.class("code_editor"));
+      
     }else{
       initFrame(element);
       initFunBtn();//未完成
@@ -43,12 +45,12 @@ var Ced={
 function initFrame(item){
   if(item.findClass("code_editor").length==0){//防止两次初始化
     var cont=item.html();
-    var num=new RegExp("[1-9]\d*.\d*|0.\d*[1-9]\d*");
-    var w=item.hasAttr("width")?item.attr("width"):"300px";
+    var num=/^\d+$/;
+    var w=item.hasAttr("width")?item.attr("width"):_def_w+"px";
     if(num.test(w)){
       w+="px";
     }
-    var h=item.hasAttr("height")?item.attr("height"):"200px";
+    var h=item.hasAttr("height")?item.attr("height"):_def_h+"px";
     if(num.test(h)){
       h+="px";
     }
@@ -70,8 +72,8 @@ function initFrame(item){
     }
     var mh=45;
     if(item.attr(_ce_btn)=="true"){
-      item.child().css("padding-top","35px");
-      mh+=35;
+      item.child().css("padding-top","40px");
+      mh+=40;
       item.append(J.new("div.code_set_w").append('\
         <img src="assets/images/fix.png" onclick="Ced.fix(this)"/>\
         <img src="assets/images/color.png" onclick="Ced.clearColor(this)"/>\
@@ -111,6 +113,7 @@ function initCodeMain(item){
     },
     //onclick:moveCursor
   });
+  tabEnable(item);
 }
 var _code={
   _str:1,

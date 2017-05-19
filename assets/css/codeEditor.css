@@ -1,8 +1,5 @@
 
-editor{    
-  min-height:45px;
-  min-width:200px;
-  width:400px;
+editor{
   display: block;
   position:relative;
   white-space: pre;
@@ -13,7 +10,7 @@ editor{
   border-color: #000;
   background-color: transparent;
   font-size: 18px;
-  padding: 15px;
+  padding: 10px;
   line-height: 22px;
   font-family: Microsoft Yahei;
   overflow: auto;
