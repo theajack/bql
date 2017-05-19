@@ -2,7 +2,51 @@ J.ready(function(){
   //user.init("aaa")
   //users.init([{nickname:1,pw:1},{nickname:2,pw:2},{nickname:3,pw:3}])
 });
-function postData(){
+var test;
+var testObj;
+var testStr;
+J.ready(function(){
+  test=new JQL([{
+    nickname:"a",
+    pw:"p1",
+    age:10,
+    birth:"2010-01-02"
+  },{
+    nickname:"aaaa",
+    pw:"p2",
+    age:12,
+    birth:"2010-01-03"
+  },{
+    nickname:"a",
+    pw:"p1",
+    age:10,
+    birth:"2010-01-02"
+  },{
+    nickname:"aa",
+    pw:"p3",
+    age:9,
+    birth:"2010-01-01"
+  },{
+    nickname:"aaaa",
+    pw:"p1",
+    age:10,
+    birth:"2010-01-02"
+  },{
+    nickname:"aaaaaa",
+    pw:"p1",
+    age:13,
+    birth:"2010-01-05"
+  }]);
+  
+  testObj=Jql({
+    nickname:"aaaaaa",
+    pw:"p1",
+    age:13,
+    birth:"2010-01-05"
+  });
+  testStr=Jql("test");
+});
+function test(){
   return [{
     nickname:"a1",
     pw:"p1",

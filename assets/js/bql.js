@@ -1,11 +1,378 @@
-(function(){
-  function _checkString(arg){
-    if(arg.constructor==String){
-      return arg.split(",");
-    }
-    return arg
+/*<style>
+  [b-bind]{
+    display:none;
   }
-  //var arg=1;
+  [b-loop]{
+    display:none;
+  }
+</style>*/
+(function(){
+  J.ready(function(){
+    BQL.init();
+  });
+  var _bind="b-bind",//单值
+    _loop="b-loop",//数组
+    _update="b-update",//input值改变 是否更新数据 默认为false oninput 更新数据
+    _refresh="b-refresh",//onchange 刷新页面
+    _callback="b-callback",//onchange 刷新页面 的回调函数
+    _init="b-init",//初始值 默认为null
+    _each="b-each",//下文中引用的变量名 默认为each
+    _each_def="each",
+    _s="{{",
+    _e="}}",
+    _bind_str=_s+"bind"+_e,
+    _reg=new RegExp("("+_s+")(.*?)("+_e+")","g"),
+    _undefined="无",
+    _index="b-index",//哪一个数据
+    _attr="b-attr";//那一个属性
+  function _funsResult(get,data,i){
+    var result=[];
+    get.funs().each(function(item){
+      var res=J.checkArg(item(data),_undefined);
+      result.append(res);
+    });
+    var str=get.str().replaceAll(_bind_str,result);
+    if(i!=undefined){
+      str=str.replaceAll(_index+'="i"',_index+"="+i);
+    }
+    return str;
+  }
+
+  function _bqlRefresh(get,run){
+    var obj=get.obj();
+    if(run===true&&obj.run!=undefined){
+      obj.run();
+    }
+    var html="";
+    var d=obj.get();
+    if(d==null){
+      html=get.str().replaceAll(_bind_str,"undefined");
+    }else{
+      if(get.loop()){
+        if(d!=null&&d.constructor==Array){
+          d.each(function(dataItem,i){
+            html+=_funsResult(get,dataItem,i);
+          });
+        }
+      }else{
+        html=_funsResult(get,d);
+      }
+    }
+    var element=get.element();
+    //var str=get.str();
+    element.html(html);
+    _bqlInitEvent(element,get.single());
+    return d;
+  }
+  //只考虑了Array 
+  function _bqlInitEvent(element,single){
+    //element.findTag("input").on("input","J.show(this.val())",true)
+    var refresh=element.attr(_refresh);
+    if(element.attr(_update)=="true"){
+      ["input","textarea"].each(function(tag){
+        element.findTag(tag).each(function(item){
+          if(item.hasAttr(_attr)){
+            var name;
+            if(single===true){
+              var a=item.attr(_attr);
+              item.removeAttr(_attr);
+              name=element.attr(_bind);
+              item.on("input",function(){
+                if(this.attr("type")=="number"){
+                  (new Function(name+".data()"+a+"="+this.val()+";"))();
+                }else{
+                  (new Function(name+".data()"+a+"='"+this.val()+"';"))();
+                }
+              },true);
+            }else if(single==false){
+              var i=item.attr(_index);
+              var a=item.attr(_attr);
+              item.removeAttr(_index);
+              item.removeAttr(_attr);
+              name=element.attr(_loop);
+              item.on("input",function(){
+                if(this.attr("type")=="number"){
+                  (new Function(name+".data()["+i+"]"+a+"="+this.val()+";"))();
+                }else{
+                  (new Function(name+".data()["+i+"]"+a+"='"+this.val()+"';"))();//"+name+".run();
+                }
+              },true);
+            }else{
+              name=element.attr(_bind);
+              item.removeAttr(_attr);
+              item.on("input",function(){
+                if(this.attr("type")=="number"){
+                  (new Function(name+".set("+this.val()+",false);"))();
+                }else{
+                  (new Function(name+".set('"+this.val()+"',false);"))();
+                }
+              },true);
+            }
+            if(refresh=="true"){
+              item.on("change",function(){
+                (new Function(name+".refresh();"))();
+              },true);
+            }
+          }
+        });
+      });
+    }
+  }
+  function _bqlInit(get,set){
+    var str=get.str();
+    var element=get.element();
+    var funs=new Array();
+    if(get.loop()){
+      set.varName((element.hasAttr(_each))?element.attr(_each):_each_def);
+    }
+    if(str.match(_reg)!=null){
+      str.match(_reg).each(function(item){
+        funs.append(new Function(get.varName(),"return "+item.substring(_s.length,item.length-_e.length)));
+      });
+      set.str(str.replaceAll(_reg,_bind_str));
+      set.funs(funs);
+    }
+    element.empty();
+    if(element.hasAttr(_init)){
+      this.init((new Function("return "+element.attr(_init)))());
+    }
+  }
+  function _bqlCheckRefresh(){
+    if(_checkArg.apply(null,arguments)){
+      return this.run();
+    }
+    return this;
+  }
+  function _bqlCheckResRefresh(get,res,args){
+    if(_checkArg.apply(null,args)){
+      if(get.needRefresh()){
+        this.run();
+      }
+      return res;
+    }
+    return this;
+  }
+  function _checkArg(){
+    if(arguments.length==1){
+      return (arguments[0]===true);
+    }else{
+      for(var i=0;i<arguments.length;i++){
+        if(arguments[i]===true){
+          return true;
+        }
+      }
+      return false;
+    }
+  }
+  //
+  function _bqlInitHtml(element,loop){//为oninput 给input (value) textArea (里面的内容)
+    if(element.attr(_update)=="true"){
+      ["input","textarea"].each(function(tag){
+        var items=element.findTag(tag);
+        if(items!=undefined){
+          items.each(function(item){
+            var val;
+            if(tag=="input"){
+              val=item.attr("value").trim();
+            }else{
+              val=item.html().trim();
+            }
+            item.attr("value",val);
+            var arr=val.match(_reg);
+            if(arr!=null){
+              if(arr[0]==val){//只允许 value="{{item.attr}}"
+                var attr=arr[0].substring(arr[0].indexOf("."),arr[0].length-_e.length);
+                item.attr(_attr,attr);
+                if(loop){
+                  item.attr(_index,"i");
+                }
+              }
+            }
+          });
+        };
+      });
+    }
+    return element.html();
+  }BQL=function(obj,loop){
+    var _varName=obj.attr(_bind);
+    var _obj=null;
+    var _str=_bqlInitHtml(obj,loop);
+    var _element=obj;
+    var _bql_callback=null;
+    if(_element.attr(_callback)!=""){//放在后面是为了不让初始化 回调
+      _bql_callback=new Function("obj","data",_element.attr(_callback));
+    }
+    var _loop=loop;
+    var _single=null;
+    var _funs=new Array();
+    var _need_refresh=false;
+    var get={
+      varName:function(){
+        return _varName;
+      },element:function(){
+        return _element;
+      },obj:function(){
+        return _obj;
+      },str:function(){
+        return _str;
+      },loop:function(){
+        return _loop;
+      },funs:function(){
+        return _funs;
+      },single:function(){
+        return _single;
+      },needRefresh:function(){
+        return _need_refresh;
+      }
+    };
+    var set={
+      varName:function(val){
+        _varName=val;
+      },element:function(val){
+        _element=val;
+      },obj:function(val){
+        _obj=val;
+      },str:function(val){
+        _str=val;
+      },loop:function(val){
+        _loop=val;
+      },funs:function(val){
+        _funs=val;
+      }
+    };
+    
+    this.run=function(){
+      var res;
+      if(_single===false){
+        res=_obj.run();
+      }else{
+        res=_obj.get();
+      }
+      if(_need_refresh){
+        this.refresh();
+        _need_refresh=false;
+      }
+      return res;
+    };
+    this.refresh=function(){
+      _bqlRefresh(get);
+      if(_bql_callback!=undefined){
+        _bql_callback.call(_element,_element,_obj.get());
+      }
+    };
+    this.init=function(data){
+      if(data==undefined){
+        data=[];
+      }
+      _obj=Jql(data);
+      if(data.constructor==Object){
+        this.add=function(attr,value){
+          _obj.add(attr,value);
+          _need_refresh=true;
+          return this.run();
+        };
+        this.remove=function(attr){
+          _obj.remove(attr);
+          _need_refresh=true;
+          return this.run();
+        };
+        this.select=function(attr){
+          return _obj.select(attr);
+        };
+        this.update=function(attr,value){
+          _obj.update(attr,value);
+          _need_refresh=true;
+          return this.run();
+        };
+        _single=true;
+      }else if(data.constructor==Array){
+        this.add=function(attr,value,run){
+          _obj.add(attr,value,run);
+          _need_refresh=true;
+          return _bqlCheckRefresh.call(this,value,run);
+        };
+        this.remove=function(attr,run){
+          _obj.remove(attr,run);
+          _need_refresh=true;
+          return _bqlCheckRefresh.call(this,attr,run);
+        };
+        this.update=function(attr,value,run){
+          _obj.update(attr,value,run);
+          _need_refresh=true;
+          return _bqlCheckRefresh.call(this,value,run);
+        };
+        this.delete=function(index,run){
+          _obj.delete(index,run);
+          _need_refresh=true;
+          return _bqlCheckRefresh.call(this,index,run);
+        };
+        this.insert=function(attr,value,index,run){
+          _obj.insert(attr,value,index,run);
+          _need_refresh=true;
+          return _bqlCheckRefresh.call(this,value,index,run);
+        };
+        this.select=function(attr,run){
+          return _bqlCheckResRefresh.call(this,get,_obj.select(attr,run),[attr,run]);
+        };
+        this.where=function(attr,value,run){
+          return _bqlCheckResRefresh.call(this,get,_obj.where(attr,value,run),[value,run]);
+        };
+        this.orderBy=function(attr,order,type,run){
+          return _bqlCheckResRefresh.call(this,get,_obj.orderBy(attr,order,type,run),[order,type,run]);
+        };
+        this.groupBy=function(attr,run){
+          return _bqlCheckResRefresh.call(this,get,_obj.groupBy(attr,run),[run]);
+        };
+        _single=false;
+      }
+      this.set=function(data,ref){
+        _obj.set(data);
+        if(ref==undefined||ref===true){
+          _need_refresh=true;
+          this.run();
+        }
+        return data;
+      };
+      this.get=function(){
+        return _obj.get();
+      };
+      this.data=function(){
+        return _obj.data();
+      };
+      this.clear=function(){
+        _obj.clear();
+        _need_refresh=true;
+        this.run();
+        return null;
+      };
+      _need_refresh=true;//初始化
+      this.run();
+      return this.get();
+    };
+    _bqlInit.call(this,get,set);
+  };
+  BQL.init=function(element){
+    if(element==undefined){
+      var list=J.attr(_bind);
+      list.each(function(item){
+        (new Function("obj","window."+item.attr(_bind)+"=new BQL(obj)"))(item);
+      });
+      var lista=J.attr(_loop);
+      lista.each(function(item){
+        (new Function("obj","window."+item.attr(_loop)+"=new BQL(obj,true)"))(item);
+      });
+    }else{
+      if(element.hasAttr(_bind)){
+        (new Function("obj","window."+element.attr(_bind)+"=new BQL(obj)"))(element);
+        return window[element.attr(_bind)];
+      }else if(element.hasAttr(_loop)){
+        (new Function("obj","window."+element.attr(_loop)+"=new BQL(obj,true)"))(element);
+        return window[element.attr(_loop)];
+      }
+    }
+  };
+  
+  //JQL
   var TYPE={
     update:"update",
     select:"select",
@@ -20,7 +387,6 @@
     all:"*"
   };
   var FUN={
-    //avg count first last max min 
     sum:"sum",
     count:"count",
     avg:"avg",
@@ -28,8 +394,13 @@
     first:"first",
     last:"last",
     max:"max",
-    min:"min",
-    array:["sum","count","avg","distinct","first","last","max","min"]
+    min:"min"
+  };
+  function _checkString(arg){
+    if(arg.constructor==String){
+      return arg.split(",");
+    }
+    return arg
   }
   function _jqlSetAttrAndValue(data,set){
     var attra=[];
@@ -40,9 +411,7 @@
     }
     set.attr(attra);
     set.value(valuea);
-  }
-  
-  function _jqlSelect(get,set,arg,run){
+  }function _jqlSelect(get,set,arg,run){
     if(arg==undefined||arg.constructor==Boolean){
       if(run===true||arg===true){
         return _jqlCheckReturn(get.data(),get);
@@ -692,35 +1061,10 @@
     
     set.groupAttr("");
     set.groupFuns([]);
-  }
-
-  function _jqlCheckData(data){
-    if(this.data==undefined){
-      this.canQuery=false;
-      return true;
-    }else if(this.data.constructor==Object||this.data.constructor==Array){
-      if(data.constructor==String){
-        this.canQuery=true;
-        return false;
-      }else if(data.constructor==Object||data.constructor==Array){
-        this.canQuery=true;
-        return true;
-      }else{
-        this.canQuery=false;
-        _throw("参数错误");
-      }
-    }else{
-      if(data.constructor==Object||data.constructor==Array){
-        this.canQuery=true;
-      }else{
-        this.canQuery=false;
-      }
-      return true;
-    }
   };
   Jql=function(data){
     return new JQL(data);
-  }
+  };
   JQL=function(data){
     var _canQuery=true;
     var _data;
@@ -818,7 +1162,7 @@
       },groupFuns:function(){
         return _group_funs;
       }
-    }
+    };
     _jqlInitData(data,set);
     if(data.constructor==Object){
       this.add=function(attr,value){
@@ -898,8 +1242,5 @@
       return null;
     }
   };
-
 })();
-var Jql;
-var JQL;
-
+var BQL,JQL,Jql;
