@@ -60,8 +60,8 @@
       <div b-loop="users" b-update=true b-refresh=true b-callback="Ced.init()" b-init="test()">
         <div>昵称：<input type="text" value="{{each.nickname}}"/></div>
         <editor height="auto" width="auto">function aa(){
-  var a={{each.nickname}};
-  return aa;
+	var a={{each.nickname}};
+	return aa;
 }</editor>
         <div>昵称：<textarea>{{each.nickname}}</textarea></div>
         <div>昵称：{{each.nickname}}</div>
