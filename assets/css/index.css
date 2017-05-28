@@ -1,4 +1,6 @@
-
+.red{
+  color:#e44;
+}
 
 
 ::selection{
@@ -703,6 +705,7 @@ a{
 .border-btn:active{
   background-color:#777!important;
 }
+
 #viewProject{
   width: 160px;
   position: absolute;
@@ -777,6 +780,543 @@ a{
 }
 /*end function*/
 
+/*api*/
+/*api part*/
+#apiPart{
+}
+#apiBarTitle{
+  width: 100%;
+  height: 40px;
+}
+#apiSearchWrapper{
+  position: absolute;
+  height: 50px;
+  width: 280px;
+  top: 4px;
+  right: 0;
+  border: 2px solid #888;
+}
+.result-close-btn{
+  display: block!important;
+  color: #fff;
+  background: #444;
+  position: relative;
+  top: -1px!important;
+  font-size: 25px;
+  cursor: pointer;
+}
+.result-close-btn:hover{
+  background: #222;
+}
+.result-close-btn>span{
+  font-size: 15px;
+  position: absolute;
+  top: 5px;
+  right: 5px;
+}
+#resultNum{
+  font-size:17px;
+  font-weight:bold;
+  margin-right:5px;
+}
+
+#apiSearchInput{
+  float:left;
+  height: 100%;
+  width: 80%;
+  font-size: 25px;
+  color: #444;
+  padding-left:5px;
+  outline:none;
+  -webkit-appearance:none;
+  border:0;
+}
+#apiSearchBtn{
+  display:block;
+  float:left;
+  height:102%;
+  width:20%;
+  position: relative;
+  background-color:#444;
+  color:#fff;
+  font-size:30px;
+  line-height:45px;
+  top: -1px;
+  cursor:pointer;
+}
+#apiSearchBtn:hover{
+  background-color:#222;
+}
+#apiSearchResultWrapper{
+  position: absolute;
+  width: 280px;
+  background: #fff;
+  right: -2px;
+  border: 2px solid #888;
+  top: 48px;
+  z-index: 10;
+  height: 530px;
+}
+#apiSearchResultList{
+  height: 500px;
+  padding: 15px 20px;
+  overflow-y:auto;
+}
+.api-title{
+  width: 33.33333%;
+  float: left;
+  height: 60px;
+  font-size: 20px;
+  padding: 20px;
+  margin-bottom:0;
+  text-align: center;    
+  position: relative;
+  overflow:hidden;
+  top: 0px;
+  cursor:pointer;
+  transition: all 0.3s;
+  -moz-transition: all 0.3s;	/* Firefox 4 */
+  -webkit-transition: all 0.3s;	/* Safari 和 Chrome */
+  -o-transition: all 0.3s;
+}
+.api-title span{
+  margin-right:5px;
+}
+
+.api-title:nth-child(odd){
+  color:#fff;
+}
+.api-title:nth-child(even){
+  color:#333;
+}
+.api-title:hover{
+  top:-30px;
+  padding-top:30px;
+  margin-bottom:-30px;
+  height: 90px;
+}
+#apiWindow{
+  width:100%;
+  overflow:hidden;
+  position:relative;
+}
+#apiDetailWrapper{
+  width:100%;
+  position:absolute;
+  overflow:hidden;
+  height:630px;
+}
+#apiDetail{
+  width: 100%;
+  height: 100%;
+  position: absolute;  
+  top:-100%;  
+  transition: top 0.5s;
+  -webkit-transition: top 0.5s;	/* Safari 和 Chrome */
+  background-color: rgba(255,255,255,0.9);
+  z-index: 10;
+  color:#000;
+  padding:20px;
+}
+#apiDetailTitleWrapper{
+  height:180px;
+  width:100%;
+  border-bottom: 3px dashed #888
+}
+#apiTitleLeft,#apiTitleRight{
+  height:100%;
+  float:left;
+  overflow-y:auto;
+  padding:0 10px;
+}
+#apiTitleLeft{
+  width:30%;
+  padding-top:40px;
+  border-right: 3px dashed #888;
+  position:relative;
+}
+#apiDetailSwitchWrapper{
+  position: absolute;
+  top: 5px;
+  right: 0px;
+  z-index: 15;
+}
+#apiDetailSwitchWrapper span{
+  font-size: 20px;
+  margin-right: 10px;
+  background-color: #444;
+  display: block;
+  height: 30px;
+  color: #fff;
+  width: 40px;
+  border-radius: 5px;
+  float: left;
+  padding-top: 4px;
+  text-align: center;
+  cursor:pointer;
+  position:relative;
+  top:0;
+  transition: all 0.3s;
+  -webkit-transition: all 0.3s;	/* Safari 和 Chrome */
+  -moz-transition: all 0.3s;	/* Firefox 4 */
+  -o-transition: all 0.3s;
+}
+#apiDetailSwitchWrapper span:hover{
+  background-color: #222;
+  top:-4px;
+}
+#apiDetailSwitchWrapper span.disable{
+  background-color: #ccc; 
+}
+#apiDetailSwitchWrapper span.disable:hover{
+  background-color: #ddd; 
+}
+#apiTitleLeft .part-title{
+  margin:0!important;
+  padding:0!important;
+}
+#apiTitleRight{
+  width:70%;
+  padding-top:10px!important;
+}
+#showCode {
+    position: relative;
+}
+.api-detail-item{
+  height: 410px;
+  float: left;    
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding:10px 20px;
+}
+.api-detail-item.result{
+  overflow-y: hidden;
+}
+.api-detail-item.small{
+  width: 67%;
+}
+.api-detail-item.large{
+  width: 33%;
+}
+.api-detail-title{    
+  font-size: 25px;
+  color: #444;
+  margin: 10px 20px 10px 0;
+  font-weight:bold;
+}
+.api-detail-title span{
+  margin-right:5px;
+  color:#000;
+  position:relative;
+  top:3px;
+}
+.api-detail-content{
+  font-size: 20px;
+  color: #000;
+  text-indent: 2em;
+  line-height: 30px;
+}
+.api-detail-item.border{
+  border-right: 3px dashed #888;
+}
+#apiDetail.show{
+  top:0;
+}
+#apiTrangleBar{
+  width:100%;
+  position:absolute;
+  z-index: 5;
+}
+#apiBar{
+  width: 300%;
+  height: 500px;
+  position:relative;
+  left:0%;
+  transition: left 0.5s;
+  -webkit-transition: left 0.5s;	/* Safari 和 Chrome */
+  -moz-transition: left 0.5s;	/* Firefox 4 */
+  -o-transition: left 0.5s;
+}
+.api-item{
+  height:100%;
+  width:33.33333%;
+  float:left;
+  padding:25px;
+  padding-top:40px;
+  overflow-y:auto;
+}
+.api-item.bg-lgray{
+  border:1px solid #444;
+}
+.api-item.bg-dark{
+  border:1px solid #ddd;
+}
+.api-item span,#apiSearchResultList > span{
+  display: block;
+  width: 18%;
+  height: 80px;
+  margin: 1%;
+  float: left;
+  font-size: 30px;
+  text-align: center;
+  padding-top: 22px;
+  cursor:pointer;
+  position:relative;
+  word-break: break-word;
+  top:0;
+  transition: all 0.5s;
+  -webkit-transition: all 0.5s;
+}
+#apiSearchResultList>span{
+  background-color: #444;
+  color: #fff;
+  overflow:hidden;
+}
+.api-item span:hover,#apiSearchResultList > span:hover{
+  top:-15px;
+}
+#apiSearchResultList>span:hover{
+  background-color: #222;
+}
+#apiSearchResultList > span{
+  width: 100%;
+  margin:10px 0;
+}
+.search-key{
+  color: #f66;
+}
+.api-item.bg-lgray span{
+  background-color: #444;
+  color: #fff;
+  overflow:hidden;
+}
+.api-item.bg-lgray span:hover{
+  background-color: #222;
+}
+.api-item.bg-dark span{
+  background-color: #ddd;
+  color:#777;
+}
+.api-item.bg-dark span:hover{
+  background-color: #fff;
+}
+#apiCode,#apiCodeView{
+  /*width: 340px; height: 210px;*/
+  width: 100%;
+  background-color: rgba(20,20,20,0.9);
+  border-radius: 5px;
+  border-color: #000;
+  color: #fff;
+  font-size: 18px;
+  resize: none;
+  height: 337px;
+  padding: 10px;
+  line-height: 22px;
+  font-family: Microsoft Yahei;
+  overflow: auto;
+  position:absolute;
+  white-space: pre;
+  border:0;
+  margin: 0;
+  outline:none;
+  -webkit-appearance:none;
+  word-break: break-all;
+  word-wrap: normal;
+}
+#apiCode{
+  background-color: transparent;
+  color:rgba(255,255,255,0.5);
+  border-color:transparent;
+  transition: background-color 0.3s;
+  -o-transition: background-color 0.3s;
+  -moz-transition: background-color 0.3s;
+  -webkit-transition: background-color 0.3s;
+}
+#apiCode.bg{
+  background-color: rgba(20,20,20,0.9);
+}
+#apiCodeView{
+  color:#444;
+}
+._key{
+  color:#22b5ff;
+}
+._attr{
+  
+}
+._sign{
+  color:#f0d;
+}
+._fun,._fun j{
+  color:#001dff;
+}
+._d-fun,._d-fun j{
+  color:#b2ff00;
+}
+._num{
+  color:#fff;
+}
+._tag,._tag ._key{
+  color:#ff8d00;
+}
+._str,._str j{
+  color:#f00!important;
+}
+._note,._note j{
+  color:#019d00!important;
+}
+#cursor{
+  display: none;
+  width: 2px;
+  height: 23px;
+  background-color: #fff;
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  z-index: 100;
+  animation:cursor 1s infinite;
+  -moz-animation:cursor 1s infinite; /* Firefox */
+  -webkit-animation:cursor 1s infinite; /* Safari and Chrome */
+  -o-animation:cursor 1s infinite; /* Opera */
+}
+@keyframes cursor {
+	0%   {opacity:1;}
+  50%  {opacity:0;}
+  100% {opacity:1;}
+}
+
+@-moz-keyframes cursor {
+	0%   {opacity:1;}
+  50%  {opacity:0;}
+  100% {opacity:1;}
+}
+
+@-webkit-keyframes cursor {
+	0%   {opacity:1;}
+  50%  {opacity:0;}
+  100% {opacity:1;}
+}
+
+@-o-keyframes cursor {
+	0%   {opacity:1;}
+  50%  {opacity:0;}
+  100% {opacity:1;}
+}
+
+#apiBtnWrapper{
+  position: absolute;
+  width: 100%;
+  padding: 0 40px;
+  height: auto;
+}    
+.border-btn.dark{
+  color: #444;
+  border-color: #444;
+}
+.border-btn.dark:hover{
+  background-color:#ddd!important;
+}
+#apiBtnWrapper .border-btn{
+  height: 35px;
+  float: right;
+  padding: 2px 5px;
+  margin: 5px 0 0 5px;
+}
+#apiBtnWrapper .border-btn span{
+  margin-right:7px;
+  font-size: 17px;
+}
+#apiBtnWrapper .border-btn span.only{
+  margin-right:0;
+  font-size: 19px;
+}
+#apiBtnWrapper .border-btn span.show-all{
+  top: 3px;
+  left: -0.5px;
+}
+#apiBtnWrapper .border-btn span.hide-all{
+  top: 1px;
+  left: 1.5px;
+}
+#resultArea,.result-cover{
+  width: 100%;
+  height: 340px;
+  border: 2px dotted #000;
+  border-radius: 10px;
+  padding:10px;
+  overflow-y:auto;
+  word-break: break-word;
+}
+#resultArea.hide,.result-cover.hide{
+  display:none;
+}
+.result-cover{    
+  background-color: rgba(100,100,100,0.8);
+  font-size: 30px;
+  text-align: center;
+  padding-top: 100px;
+  color: #fff;
+}
+.trangle{
+	width:0;
+	border: 20px solid transparent;
+	border-bottom: 25px solid #fff;
+  transition: margin-left 0.3s;
+  margin-left:14.5%;
+  -moz-transition: margin-left 0.3s;	/* Firefox 4 */
+  -webkit-transition: margin-left 0.3s;	/* Safari 和 Chrome */
+  -o-transition: margin-left 0.3s;
+}
+.trangle.api{
+	border-width:30px;
+	border-bottom-width: 0;
+	border-top-width: 15px;
+  transition: all 0.5s;
+  -webkit-transition: all 0.5s;
+  z-index:5;
+}
+.trangle.dark{
+  border-top-color:#444;
+}
+.trangle.lgray{
+  border-top-color:#ddd;
+}
+.ripple {
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  -webkit-transform: scale(0);
+  -ms-transform: scale(0);
+  transform: scale(0);
+  position: absolute;
+  opacity: 1;
+}
+.ripple.r-white{
+  background: rgba(255, 255, 255, 0.4);
+}
+.ripple.r-black{
+  background: rgba(0, 0, 0, 0.4);
+}
+.rippleEffect {
+  -webkit-animation: rippleDrop .4s linear;
+  animation: rippleDrop .4s linear;
+}
+ 
+@-webkit-keyframes 
+  rippleDrop {  100% {
+   -webkit-transform: scale(2);
+   transform: scale(2);
+   opacity: 0;
+  }
+}
+@keyframes 
+  rippleDrop {  100% {
+   -webkit-transform: scale(2);
+   transform: scale(2);
+   opacity: 0;
+  }
+}   
+/*end api part*/
 
 
 /*footer*/
@@ -876,17 +1416,6 @@ a{
   #copyBtn{
     width: 110px;
   }
-  .api-item{
-    float: none;
-    width: 100%;
-    margin: 10px 0;
-    padding: 10px;
-    height:auto;
-    min-height:0px;
-  }
-  .api-item-title{
-    font-size:20px;
-  }
   
   
   
@@ -907,6 +1436,177 @@ a{
   }
   .relate-link{
     font-size: 15px;
+  }
+  
+  /*api*/
+  
+  .trangle{
+    border: 10px solid transparent;
+    border-bottom: 10px solid #fff;
+  }
+  .detail-div{
+    font-size: 12px;
+    padding: 5px;
+  }
+  #introDetail.open{
+    height: 80px;
+  }
+  #viewApi{
+    position: absolute;
+    top: 43px;
+    margin: 0 auto;
+    height: 30px;
+    width: 110px;
+    padding: 0;
+    line-height: 26px;
+    right: 10px;
+  }
+  #apiBar{
+    height:400px;
+  }
+  #apiSearchWrapper{
+    position: relative;
+    width: 80%;
+    margin: 0 auto;
+    height: 35px;
+  }
+  #apiSearchBtn{
+    font-size: 20px;
+    line-height: 35px;
+  }
+  #apiSearchInput{
+    font-size: 20px;
+  }
+  #apiSearchResultWrapper{
+    width: 101%;
+    top: 32px;
+  }
+  .trangle.api{
+    border-width: 13px;
+    border-bottom-width: 0;
+    border-top-width: 10px;
+  }
+  
+  
+  #apiTitleLeft .part-title{
+    font-size: 22px!important;
+  }
+  #apiTitleLeft .smaller{
+    font-size: 15px!important;
+  }
+  .api-title{
+    padding: 15px 0;
+    font-size: 15px;
+  }
+  .api-title span{
+    font-size:20px;
+  }
+  .api-item{    padding: 8px;}
+  .api-item span{
+    font-size: 14px!important;
+    height: 30px;
+    width: 32.333333%;
+    margin: 0.5%;
+    padding: 0!important;
+    line-height: 30px!important;
+    white-space: nowrap;
+  }
+  #apiDetailTitleWrapper{height:auto}
+  #apiDetail{    padding: 5px;padding-top:20px}
+  #apiDetailSwitchWrapper span{
+    height: 20px;
+    width: 30px;
+    margin-right: 5px;
+    font-size: 14px;
+    padding: 3px;
+  }
+  #apiTitleLeft,#apiTitleRight{
+    position: relative;
+    width: 100%;
+    border-right: none;
+    padding: 0px!important;
+    float:none;
+  }
+  #apiTitleLeft{height:50px}
+  #apiTitleRight{height:90px}
+  .api-detail-title{
+    font-size:15px;
+    line-height:15px;
+    margin: 6px 0 8px 0;
+  }
+  .mb-m{margin:0}
+  .api-detail-content{
+    font-size:12px;
+    line-height:15px;
+  }
+  .relate-item-text{
+    font-size:13px;
+    white-space:normal;
+  }
+  .relate-item-img{
+    width: 80%;
+    height: auto;
+  }
+  .api-detail-item{
+    float:none!important;
+    width:100%!important;
+    padding: 5px;
+  }
+  .api-detail-item.small{
+    height: 260px;
+  }
+  .api-detail-item.large{
+    height:200px
+  }
+  .api-detail-item.border{
+    border-bottom:3px dashed #888;
+    border-right:none;
+  }
+  #apiBtnWrapper{
+    padding: 0;width: 96%;
+  }
+  #apiBtnWrapper .border-btn{
+    border-radius:5px;
+    border-width:1px;
+    height:20px;
+    padding: 2px 4px;
+  }
+  #apiBtnWrapper .border-btn span{
+    font-size:10px;
+    margin:0!important;
+  }
+  #apiBtnWrapper .border-btn span.only{
+    font-size:10px;
+  }
+  #apiCode,#apiCodeView{
+    height: 210px;
+    font-size: 10px;
+    line-height: 12px;
+  }
+  #resultArea, .result-cover{
+    height: 160px;
+  }
+  .result-cover{
+    padding-top: 50px;
+    font-size: 20px;
+  }
+  #apiSearchResultList{
+    padding:10px;
+  }
+  #apiSearchResultList > span{
+    width: 48%;
+    margin: 1%;
+    font-size: 17px!important;
+    height: 40px;
+    line-height: 40px;
+    padding-top: 0!important;
+    white-space: nowrap;
+  }
+  .d-show{
+    display:block;
+  }
+  .d-hide{
+    display:none;
   }
 }
 

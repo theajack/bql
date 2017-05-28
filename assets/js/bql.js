@@ -261,6 +261,7 @@
       }
     };
     this.init=function(data){
+      _need_refresh=true;
       if(data==undefined){
         data=[];
       }
@@ -351,7 +352,7 @@
     };
     _bqlInit.call(this,get,set);
   };
-  BQL.init=function(element){
+  BQL.init=function(element,data){
     if(element==undefined){
       var list=J.attr(_bind);
       list.each(function(item){
@@ -362,13 +363,23 @@
         (new Function("obj","window."+item.attr(_loop)+"=new BQL(obj,true)"))(item);
       });
     }else{
+      var bool="";
+      var attr="";
       if(element.hasAttr(_bind)){
-        (new Function("obj","window."+element.attr(_bind)+"=new BQL(obj)"))(element);
-        return window[element.attr(_bind)];
+        attr=element.attr(_bind);
       }else if(element.hasAttr(_loop)){
-        (new Function("obj","window."+element.attr(_loop)+"=new BQL(obj,true)"))(element);
-        return window[element.attr(_loop)];
+        attr=element.attr(_bind);
+        bool=",true";
+      }else{
+        throw new Error("对象没有b-bind或b-loop属性，不可初始化");
       }
+      (new Function("obj","window."+attr+"=new BQL(obj"+bool+")"))(element);
+      if(!element.hasAttr(_init)){
+        if(data!=undefined){
+          (new Function("d",attr+".init(d)"))(data);
+        }
+      }
+      return window[attr];
     }
   };
   
@@ -468,7 +479,7 @@
   }
   function _jqlInsert(get,set,a1,a2,a3,a4){//(arg,value,i,run)
     set.type(TYPE.insert);
-    if(a1.constructor==Object){
+    if(a1.constructor==Object||a1.constructor==Array){
       set.attr(a1);
       if(a2!=undefined){
         if(a2.constructor==Number){
@@ -504,8 +515,8 @@
   }
   
   function _jqlWhere(get,set,attr,value,run){
-    if(get.type()===""){
-      _throw("where:使用where之前必须使用select、update、add、remove、insert、delete方法之一");
+    if(get.type()===""&&get.groupAttr===""){
+      _throw("where:使用where之前必须使用select、update、add、remove、insert、delete、groupBy方法之一");
     }else{
       if(attr.constructor==Object){
         _jqlSetCondAttrAndValue(attr,set);
@@ -601,7 +612,7 @@
   };
   function _getRunGroupBySelect(obj,sel,as){
     if(sel){
-      if(as[0]==TYPE.all||as[0]==""){
+      if(as[0]==TYPE.all||as[0]==""||as.length==0){
         return obj;
       }
       var d={};
@@ -662,7 +673,7 @@
           _throw("groupBy：元素中没有"+attr+"属性");
         }
       });
-      if(!norSel){
+      if(!norSel){//含有聚集函数
         var funs=get.groupFuns();
         if(funs.length>0){
           var funRes=[];
@@ -688,36 +699,10 @@
                 }else{
                   _throw(fun.name+"列名不能相同");
                 }
-                
                 if(fun.name==fun.attr){
                   fun.name=fun.fun;
                 }
-                switch(fun.fun){
-                  case FUN.sum:{
-                    newobj[fun.name]=_getGroupAttrArr(items,fun.attr).sum();
-                  };break;
-                  case FUN.count:{
-                    newobj[fun.name]=items.length;
-                  };break;
-                  case FUN.avg:{
-                    newobj[fun.name]=_getGroupAttrArr(items,fun.attr).avg();
-                  };break;
-                  case FUN.first:{
-                    newobj[fun.name]=items.first()[fun.attr];
-                  };break;
-                  case FUN.last:{
-                    newobj[fun.name]=items.last()[fun.attr];
-                  };break;
-                  case FUN.max:{
-                    newobj[fun.name]=_getGroupAttrArr(items,fun.attr).max();
-                  };break;
-                  case FUN.min:{
-                    newobj[fun.name]=_getGroupAttrArr(items,fun.attr).min();
-                  };break;
-                  default:{
-                    newobj[fun.name]=items[0][fun.attr];
-                  };break;
-                }
+                newobj[fun.name]=_checkGroupFunc(fun,items);
               }
             });
             
@@ -729,6 +714,34 @@
       return gres;
     }else{
       _throw("groupBy属性参数必须非空且为字符串");
+    }
+  }
+  function _checkGroupFunc(fun,items){
+    switch(fun.fun){
+      case FUN.sum:{
+        return _getGroupAttrArr(items,fun.attr).sum();
+      };break;
+      case FUN.count:{
+        return items.length;
+      };break;
+      case FUN.avg:{
+        return _getGroupAttrArr(items,fun.attr).avg();
+      };break;
+      case FUN.first:{
+        return items.first()[fun.attr];
+      };break;
+      case FUN.last:{
+        return items.last()[fun.attr];
+      };break;
+      case FUN.max:{
+        return _getGroupAttrArr(items,fun.attr).max();
+      };break;
+      case FUN.min:{
+        return _getGroupAttrArr(items,fun.attr).min();
+      };break;
+      default:{
+        return items[0][fun.attr];
+      };break;
     }
   }
   function _getGroupAttrArr(arr,attr){
@@ -771,7 +784,7 @@
   }
   function _selectCount(get,attr,data){
     if(attr.length>1){
-    _throw("使用count函数时select最多只能选择一列");
+      _throw("使用count函数时select最多只能选择一列");
     }
     var obj=_geneGroupFuns(attr[0]);
     var sum=0;
@@ -808,6 +821,15 @@
     r[obj.name]=sum;
     return r;
   }
+  function _jqlFuncWithoutGroup(get){
+    var fun=_geneGroupFuns(get.attr()[0]);
+    if(fun.name==fun.attr||fun.name=="*"){
+      fun.name=fun.fun;
+    }
+    var newobj={};
+    newobj[fun.name]=_checkGroupFunc(fun,get.data());
+    return newobj;
+  }
   function _jqlRun(get,set){
     var data=get.data();
     var attr=get.attr();
@@ -819,76 +841,97 @@
         var dist=false;
         var distArr=[];
         var sum=0;
+        var nror=false;//needRemoveOrderAttr  为了完成orderBy的order属性不在select属性里
         if(get.groupAttr()==""){//没使用groupBy
-          for(var i=0;i<data.length;i++){
-            if(_jqlCheckWhere(i,get)){
-              var r={};
-              if(attr==TYPE.all){
-                r=J.clone(data[i]);
-                result.push(r);
-              }else{
-                if(attr[0].has(FUN.count)){//count 函数
-                  result=_selectCount(get,attr,data);
-                  break;
+          if(attr.length==1&&attr[0].has("(")){//有使用聚合函数
+            result=_jqlFuncWithoutGroup(get);
+          }else{
+            if(get.orderAttr()!=""&&!attr.has(get.orderAttr())){
+              attr.push(get.orderAttr());
+              nror=true;
+            }
+            for(var i=0;i<data.length;i++){
+              if(_jqlCheckWhere(i,get)){
+                var r={};
+                if(attr==TYPE.all){
+                  r=J.clone(data[i]);
+                  result.push(r);
                 }else{
-                  attr.each(function(a,j){
-                    var name=a;//别名
-                    if(a.has(FUN.count)){
-                      _throw("使用count函数时select最多只能选择一列");
-                    }
-                    if(a.has(" ")){//别名
-                      var arr=a.split(" ");
-                      if(arr.length>3){
-                        _throw("select参数格式错误");
-                      }else if(arr.length==3){
-                        if(arr[0]!=FUN.distinct||j!=0){
-                          _throw("distinct必须放在第一个参数前");
-                        }
-                        dist=true;
-                        name=arr[2];
-                        a=arr[1];
-                      }else{
-                        if(arr[0]==FUN.distinct){
-                          if(j!=0){
+                  if(attr[0].has(FUN.count)){//count 函数
+                    result=_selectCount(get,attr,data);
+                    break;
+                  }else{
+                    attr.each(function(a,j){
+                      var name=a;//别名
+                      if(a.has(FUN.count)){
+                        _throw("使用count函数时select最多只能选择一列");
+                      }
+                      if(a.has(" ")){//别名
+                        var arr=a.split(" ");
+                        if(arr.length>3){
+                          _throw("select参数格式错误");
+                        }else if(arr.length==3){
+                          if(arr[0]!=FUN.distinct||j!=0){
                             _throw("distinct必须放在第一个参数前");
                           }
                           dist=true;
-                          name=a=arr[1];
+                          name=arr[2];
+                          a=arr[1];
                         }else{
-                          name=arr[1];
-                          a=arr[0];
+                          if(arr[0]==FUN.distinct){
+                            if(j!=0){
+                              _throw("distinct必须放在第一个参数前");
+                            }
+                            dist=true;
+                            name=a=arr[1];
+                          }else{
+                            name=arr[1];
+                            a=arr[0];
+                          }
                         }
                       }
-                    }
-                    if(a in data[i]){
-                      if(name in r){
-                        _throw("select:["+name+"]列名不能重复");
-                      }
-                      r[name]=data[i][a];
-                    }else{
-                      if(a.has("(")){
-                        _throw("select:"+a.split("(")[0]+"函数要与groupBy配合使用");
+                      if(a in data[i]){
+                        if(name in r){
+                          _throw("select:["+name+"]列名不能重复");
+                        }
+                        r[name]=data[i][a];
                       }else{
-                        _throw("select参数错误,对象不包含"+a+"属性");
+                        if(a.has("(")){//没有groupBy的聚合函数
+                          _throw("select:没有与groupBy配合使用的聚合函数,一次只允许使用一个");
+                        }else{
+                          _throw("select参数错误,对象不包含"+a+"属性");
+                        }
                       }
-                    }
-                  });
-                  
-                  if(dist){
-                    var str=J.toString(r);
-                    if(!distArr.has(str)){
-                      distArr.push(str);
+                    });
+                    
+                    if(dist){
+                      var str=J.toString(r);
+                      if(!distArr.has(str)){
+                        distArr.push(str);
+                        result.push(r);
+                      }
+                    }else{
                       result.push(r);
                     }
-                  }else{
-                    result.push(r);
                   }
                 }
               }
             }
+            _checkRunOrderBy(get,result);//对select结果order
+            if(nror){
+              result=Jql(result).remove(get.orderAttr(),true);
+            }
           }
-          _checkRunOrderBy(get,result);//对select结果order
         }else{//使用groupBy
+          if(get.cond()==true){//与where共用
+            for(var i=0;i<data.length;i++){
+              if(_jqlCheckWhere(i,get)){
+                result.push(J.clone(data[i]));
+              }
+            }
+          }else{
+            result=J.clone(data);
+          }
           var funs=[];
           attr.each(function(a){
             if(a.has(FUN.distinct)){
@@ -896,10 +939,11 @@
             }
             funs.push(_geneGroupFuns(a));
           });
+          
           if(funs.length>0){
             set.groupFuns(funs);
           }
-          result=_checkRunOrderBy(get,J.clone(data));
+          result=_checkRunOrderBy(get,result);
           result=_checkRunGroupBy(get,result);
         }
         _jqlReset(set);
@@ -955,21 +999,22 @@
       };break;
       
       case TYPE.insert:{
-        var obj={};
-        if(attr.constructor==Object){
-          obj=attr;
-        }else{
-          for(var i=0;i<attr.length;i++){
-            obj[attr[i]]=value[i];
-          }
-        }
+        var obj=_jqlGeneInsertData(attr,value);
         if(get.index()>=0){
-          if(get.index()>=data.length){
+          if(get.index()>=data.length){//若index超过长度，设置成最后一位
             set.index(data.length-1);
           }
-          data.insert(obj,get.index());
+          if(obj.constructor==Array){
+            data.insertArray(obj,get.index());
+          }else{
+            data.insert(obj,get.index());
+          }
         }else{
-          data.push(obj);
+          if(obj.constructor==Array){
+            data.appendArray(obj);
+          }else{
+            data.append(obj);
+          }
         }
         _jqlReset(set);
         return J.clone(data);
@@ -1017,6 +1062,49 @@
       };break;
     }
   }
+  function _jqlGeneInsertData(attr,value){
+    if(attr.constructor==Object||attr.constructor==Array&&attr[0].constructor==Object){
+        return attr;
+    }else{
+      var n=0;
+      for(var i=0;i<value.length;i++){
+        if(value[i].has(";")){
+          n=value[i].timeOf(";")+1;
+          break;
+        }
+      }
+      if(n==0){
+        var obj={};
+        for(var i=0;i<attr.length;i++){
+          obj[attr[i]]=value[i];
+        }
+        return obj;
+      }else{
+        var values=[];
+        for(var i=0;i<value.length;i++){
+          if(value[i].has(";")){
+            values.push(value[i].split(";"));
+          }else{
+            var arr=[];
+            for(var j=0;j<n;j++){
+              arr.push(value[i]);
+            }
+            values.push(arr);
+          }
+        }
+        var arr=[];
+        for(var i=0;i<n;i++){
+          var obj={};
+          for(var j=0;j<attr.length;j++){
+            obj[attr[j]]=values[j][i];
+          }
+          arr.push(obj);
+        }
+        return arr;
+      }
+    }
+  };
+  
   function _jqlInitData(data,set){
     if(data!=null){
       if(data.constructor!=Object&&data.constructor!=Array){
@@ -1238,8 +1326,14 @@
       return _data;
     };
     this.clear=function(){
-      _data=null;
-      return null;
+      if(_data.constructor==Array){
+        _data=[];
+      }else if(_data.constructor==Object){
+        _data={};
+      }else{
+        _data=null;
+      }
+      return _data;
     }
   };
 })();

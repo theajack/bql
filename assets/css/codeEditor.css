@@ -3,11 +3,12 @@ editor{
   display: block;
   position:relative;
   white-space: pre;
+  background-color: #222;
+  border-radius: 5px;
+  border-color: #000;
 }
 .code_editor,.code_editor_view{
   width: 100%;
-  border-radius: 5px;
-  border-color: #000;
   background-color: transparent;
   font-size: 18px;
   padding: 10px;
@@ -44,7 +45,6 @@ editor{
   color: transparent;
 }
 .code_editor_view._bottom{
-  background-color:rgba(20,20,20,0.9);
   color: #888;
 }
 .code_editor{
