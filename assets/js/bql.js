@@ -59,14 +59,11 @@
       }
     }
     var element=get.element();
-    //var str=get.str();
     element.html(html);
     _bqlInitEvent(element,get.single());
     return d;
   }
-  //只考虑了Array 
   function _bqlInitEvent(element,single){
-    //element.findTag("input").on("input","J.show(this.val())",true)
     var refresh=element.attr(_refresh);
     if(element.attr(_update)=="true"){
       ["input","textarea"].each(function(tag){
@@ -199,7 +196,7 @@
     var _str=_bqlInitHtml(obj,loop);
     var _element=obj;
     var _bql_callback=null;
-    if(_element.attr(_callback)!=""){//放在后面是为了不让初始化 回调
+    if(_element.attr(_callback)!=""){
       _bql_callback=new Function("obj","data",_element.attr(_callback));
     }
     var _loop=loop;
@@ -722,7 +719,18 @@
         return _getGroupAttrArr(items,fun.attr).sum();
       };break;
       case FUN.count:{
-        return items.length;
+        if(fun.attr.has(FUN.distinct+" ")){//count(distinct name)
+          var attr=fun.attr.split(" ")[1];
+          var arr=[];
+          items.each(function(item){
+            if(!arr.has(item[attr])){
+              arr.push(item[attr]);
+            }
+          });
+          return arr.length;
+        }else{
+          return items.length;
+        }
       };break;
       case FUN.avg:{
         return _getGroupAttrArr(items,fun.attr).avg();
@@ -823,7 +831,10 @@
   }
   function _jqlFuncWithoutGroup(get){
     var fun=_geneGroupFuns(get.attr()[0]);
-    if(fun.name==fun.attr||fun.name=="*"){
+    if(fun.name==fun.attr||fun.name=="*"){//默认别名是函数名
+      fun.name=fun.fun;
+    }
+    if(fun.attr.has(" ")&&fun.attr.split(" ")[1]==fun.name){//distinct
       fun.name=fun.fun;
     }
     var newobj={};
@@ -844,7 +855,7 @@
         var nror=false;//needRemoveOrderAttr  为了完成orderBy的order属性不在select属性里
         if(get.groupAttr()==""){//没使用groupBy
           if(attr.length==1&&attr[0].has("(")){//有使用聚合函数
-            result=_jqlFuncWithoutGroup(get);
+            result= _jqlFuncWithoutGroup(get);
           }else{
             if(get.orderAttr()!=""&&!attr.has(get.orderAttr())){
               attr.push(get.orderAttr());
