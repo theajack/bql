@@ -6,6 +6,15 @@
     display:none;
   }
 </style>*/
+
+//添加了 在b-loop$index
+//${}$
+// b-bind="name;data"
+
+/* $each $eachIndex $ei  d{js表达式}d f{return的js语句}f
+$(variable){ 
+}$*/
+
 (function(){
   J.ready(function(){
     BQL.init();
@@ -21,14 +30,16 @@
     _s="{{",
     _e="}}",
     _bind_str=_s+"bind"+_e,
-    _reg=new RegExp("("+_s+")(.*?)("+_e+")","g"),
+    _reg=new RegExp("("+_s+")((.|\\n)*?)("+_e+")","g"),
+    _fun_reg=new RegExp("(\\$(.*?){)((.|\\n)*?)(}\\$)","g"),
+    _all_reg=new RegExp("("+_s+")((.|\\n)*?)("+_e+")|(\\$(.*?){)((.|\\n)*?)(}\\$)","g"),
     _undefined="无",
     _index="b-index",//哪一个数据
     _attr="b-attr";//那一个属性
   function _funsResult(get,data,i){
     var result=[];
     get.funs().each(function(item){
-      var res=J.checkArg(item(data),_undefined);
+      var res=J.checkArg(item(data,i,i),_undefined);
       result.append(res);
     });
     var str=get.str().replaceAll(_bind_str,result);
@@ -122,16 +133,43 @@
     if(get.loop()){
       set.varName((element.hasAttr(_each))?element.attr(_each):_each_def);
     }
-    if(str.match(_reg)!=null){
-      str.match(_reg).each(function(item){
-        funs.append(new Function(get.varName(),"return "+item.substring(_s.length,item.length-_e.length)));
+    if(_all_reg.test(str)){
+      str.match(_all_reg).each(function(item){
+        var content="";
+        if(item.has("${")||item.has("$(")){
+          if(item.substring(0,2)=="${"){
+            content="(function()"+item.substring(1,item.length-1).trim()+")()";
+          }else{
+            //content="(function()"+item.substring(1,item.length-1).trim()+")()";
+            var vname=item.substring(2,item.indexOf(")"));
+            var html=item.substring(item.indexOf("{")+1,item.length-2);
+            html=html.replaceAll("'","\\'")
+            if(html.has("d{")){
+              html=html.replaceAll("d{","'+").replaceAll("}d","+'").replaceAll("\n","");
+            }
+            if(html.has("f{")){
+              html=html.replaceAll("f{","'+(function(){").replaceAll("}f","})()+'").replaceAll("\n","");
+            }
+            content="(function(){var _r='';"+
+              vname+".each(function($each,$eachIndex){\
+                var $ei=$eachIndex;\
+                _r+='"+html+"';\
+              });return _r;})()";
+          }
+        }else{
+          content=item.substring(_s.length,item.length-_e.length).trim();
+        }
+        funs.append(new Function(get.varName(),"$index","$i","return "+content));
       });
-      set.str(str.replaceAll(_reg,_bind_str));
+      set.str(str.replaceAll(_all_reg,_bind_str));
       set.funs(funs);
     }
     element.empty();
     if(element.hasAttr(_init)){
       this.init((new Function("return "+element.attr(_init)))());
+    }
+    if(element.css("display")=="none"){
+      element.css("display","block");
     }
   }
   function _bqlCheckRefresh(){
@@ -190,8 +228,22 @@
       });
     }
     return element.html();
-  }BQL=function(obj,loop){
-    var _varName=obj.attr(_bind);
+  };
+  function _bqlCheckBindInit(obj,loop){
+    var type="";
+    if(loop===true){
+      type=_loop;
+    }else{
+      type=_bind;
+    }
+    var name=obj.attr(type);
+    if(name.has(";")){
+      obj.attr(type,name.split(";")[0]);
+      obj.attr(_init,name.split(";")[1]);
+    }
+  }
+  ;BQL=function(obj,loop){
+    var _varName=obj.attr(_bind);//loop 的话 是each
     var _obj=null;
     var _str=_bqlInitHtml(obj,loop);
     var _element=obj;
@@ -353,18 +405,22 @@
     if(element==undefined){
       var list=J.attr(_bind);
       list.each(function(item){
+        _bqlCheckBindInit(item);
         (new Function("obj","window."+item.attr(_bind)+"=new BQL(obj)"))(item);
       });
       var lista=J.attr(_loop);
       lista.each(function(item){
+        _bqlCheckBindInit(item,true);
         (new Function("obj","window."+item.attr(_loop)+"=new BQL(obj,true)"))(item);
       });
     }else{
       var bool="";
       var attr="";
       if(element.hasAttr(_bind)){
+        _bqlCheckBindInit(element);
         attr=element.attr(_bind);
       }else if(element.hasAttr(_loop)){
+        _bqlCheckBindInit(element,true);
         attr=element.attr(_bind);
         bool=",true";
       }else{
