@@ -15,6 +15,8 @@
 $(variable){ 
 }$*/
 
+//一般元素的b-callback
+
 (function(){
   J.ready(function(){
     BQL.init();
@@ -143,18 +145,18 @@ $(variable){
             //content="(function()"+item.substring(1,item.length-1).trim()+")()";
             var vname=item.substring(2,item.indexOf(")"));
             var html=item.substring(item.indexOf("{")+1,item.length-2);
-            html=html.replaceAll("'","\\'")
+            html=html.replaceAll("'","\\'");
             if(html.has("d{")){
-              html=html.replaceAll("d{","'+").replaceAll("}d","+'").replaceAll("\n","");
+              html=html.replaceAll("d{","'+(").replaceAll("}d",")+'").replaceAll("\n","");
             }
             if(html.has("f{")){
-              html=html.replaceAll("f{","'+(function(){").replaceAll("}f","})()+'").replaceAll("\n","");
+              html=html.replaceAll("f{","'+(function(window){").replaceAll("}f","})()+'").replaceAll("\n","");
             }
-            content="(function(){var _r='';"+
+            content="(function(window){var _r='';"+
               vname+".each(function($each,$eachIndex){\
                 var $ei=$eachIndex;\
                 _r+='"+html+"';\
-              });return _r;})()";
+              });return _r;})()";//拼接方式有待改进 以解决单双引号问题
           }
         }else{
           content=item.substring(_s.length,item.length-_e.length).trim();
@@ -397,6 +399,12 @@ $(variable){
       };
       _need_refresh=true;//初始化
       this.run();
+      
+      _element.findAttr(_callback).each(function(item){
+        var fun=new Function(item.attr(_callback));
+        fun.call(item);
+      });
+      
       return this.get();
     };
     _bqlInit.call(this,get,set);
@@ -421,7 +429,7 @@ $(variable){
         attr=element.attr(_bind);
       }else if(element.hasAttr(_loop)){
         _bqlCheckBindInit(element,true);
-        attr=element.attr(_bind);
+        attr=element.attr(_loop);
         bool=",true";
       }else{
         throw new Error("对象没有b-bind或b-loop属性，不可初始化");
